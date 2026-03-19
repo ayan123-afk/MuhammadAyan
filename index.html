@@ -262,335 +262,39 @@
             animation: countUp 2s ease-out forwards;
         }
         
-        /* ============ ENHANCED PROJECT CARDS ============ */
-        
-        /* Main Project Card Container */
+        /* Project Card Animations */
         .project-card {
-            position: relative;
-            background: linear-gradient(145deg, #0a0a0f, #08080c);
-            border-radius: 28px;
-            overflow: hidden;
             transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            border: 1px solid rgba(255, 255, 255, 0.03);
-            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
+            position: relative;
+            overflow: hidden;
         }
         
-        /* Animated Gradient Border */
-        .project-card::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            border-radius: 28px;
-            padding: 2px;
-            background: linear-gradient(
-                45deg,
-                #8b5cf6,
-                #ec4899,
-                #8b5cf6,
-                #ec4899,
-                #8b5cf6
-            );
-            background-size: 300% 300%;
-            -webkit-mask: 
-                linear-gradient(#fff 0 0) content-box, 
-                linear-gradient(#fff 0 0);
-            -webkit-mask-composite: xor;
-            mask-composite: exclude;
-            opacity: 0;
-            transition: opacity 0.5s ease;
-            animation: borderGradient 6s ease infinite;
-        }
-        
-        .project-card:hover::before {
-            opacity: 1;
-        }
-        
-        @keyframes borderGradient {
-            0%, 100% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-        }
-        
-        /* Inner Glow Effect */
         .project-card::after {
             content: '';
             position: absolute;
             inset: 0;
-            border-radius: 28px;
-            background: radial-gradient(
-                circle at 50% 0%,
-                rgba(139, 92, 246, 0.2),
-                transparent 70%
-            );
+            border: 2px solid transparent;
+            border-radius: 24px;
+            background: linear-gradient(135deg, #8b5cf6, #ec4899) border-box;
+            -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
             opacity: 0;
             transition: opacity 0.5s ease;
-            pointer-events: none;
         }
         
         .project-card:hover::after {
-            opacity: 1;
+            opacity: 0.5;
         }
         
-        /* Image Container */
-        .project-image-container {
-            position: relative;
-            width: 100%;
-            height: 240px;
-            overflow: hidden;
-            border-radius: 28px 28px 0 0;
+        .project-card img {
+            transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
-        .project-image {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
-        .project-card:hover .project-image {
+        .project-card:hover img {
             transform: scale(1.1);
         }
-        
-        /* Image Overlay with Tech Stack Tags */
-        .project-overlay {
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(
-                to bottom,
-                transparent 0%,
-                rgba(0, 0, 0, 0.2) 50%,
-                rgba(10, 10, 15, 0.95) 100%
-            );
-            opacity: 0.8;
-            transition: opacity 0.5s ease;
-        }
-        
-        .project-tech-stack {
-            position: absolute;
-            bottom: 20px;
-            left: 20px;
-            right: 20px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            opacity: 0;
-            transform: translateY(20px);
-            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
-        .project-card:hover .project-tech-stack {
-            opacity: 1;
-            transform: translateY(0);
-        }
-        
-        .tech-tag {
-            padding: 4px 12px;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(5px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 30px;
-            font-size: 11px;
-            font-weight: 500;
-            color: #fff;
-            letter-spacing: 0.5px;
-            transition: all 0.3s ease;
-        }
-        
-        .tech-tag:hover {
-            background: linear-gradient(135deg, #8b5cf6, #ec4899);
-            border-color: transparent;
-            transform: translateY(-2px);
-        }
-        
-        /* Project Content */
-        .project-content {
-            position: relative;
-            padding: 24px 20px 20px;
-            background: linear-gradient(
-                to bottom,
-                rgba(10, 10, 15, 0.95),
-                #0a0a0f
-            );
-            z-index: 2;
-        }
-        
-        .project-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin-bottom: 12px;
-            background: linear-gradient(135deg, #fff, #e0e0e0);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            transition: all 0.3s ease;
-        }
-        
-        .project-card:hover .project-title {
-            background: linear-gradient(135deg, #8b5cf6, #ec4899);
-            -webkit-background-clip: text;
-            background-clip: text;
-        }
-        
-        .project-description {
-            color: #a0a0a0;
-            font-size: 0.95rem;
-            line-height: 1.6;
-            margin-bottom: 20px;
-            display: -webkit-box;
-            -webkit-line-clamp: 3;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-            font-family: 'Inter', sans-serif;
-        }
-        
-        /* Project Metrics */
-        .project-metrics {
-            display: flex;
-            gap: 16px;
-            margin-bottom: 20px;
-            padding: 12px 0;
-            border-top: 1px solid rgba(255, 255, 255, 0.05);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        }
-        
-        .metric-item {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            color: #888;
-            font-size: 0.85rem;
-            transition: all 0.3s ease;
-        }
-        
-        .metric-item i {
-            color: #8b5cf6;
-            font-size: 0.9rem;
-        }
-        
-        .project-card:hover .metric-item {
-            color: #fff;
-        }
-        
-        /* Project Action Button */
-        .project-action {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 12px 0 0;
-        }
-        
-        .project-link {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 12px 24px;
-            background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(236, 72, 153, 0.1));
-            border: 1px solid rgba(139, 92, 246, 0.2);
-            border-radius: 50px;
-            color: #fff;
-            font-weight: 500;
-            font-size: 0.95rem;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            overflow: hidden;
-            position: relative;
-            flex: 1;
-            justify-content: center;
-        }
-        
-        .project-link::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #8b5cf6, #ec4899);
-            transform: translate(-50%, -50%);
-            transition: width 0.6s ease, height 0.6s ease;
-            z-index: -1;
-        }
-        
-        .project-link:hover {
-            border-color: transparent;
-            color: #fff;
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px -5px rgba(139, 92, 246, 0.4);
-        }
-        
-        .project-link:hover::before {
-            width: 300px;
-            height: 300px;
-        }
-        
-        .project-link i {
-            transition: transform 0.3s ease;
-        }
-        
-        .project-link:hover i {
-            transform: translateX(5px) rotate(-45deg);
-        }
-        
-        /* Project Badge */
-        .project-badge {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(5px);
-            padding: 6px 12px;
-            border-radius: 30px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-            border: 1px solid rgba(139, 92, 246, 0.3);
-            color: #8b5cf6;
-            z-index: 3;
-            opacity: 0;
-            transform: translateX(20px);
-            transition: all 0.4s ease;
-        }
-        
-        .project-card:hover .project-badge {
-            opacity: 1;
-            transform: translateX(0);
-        }
-        
-        /* Project Stats */
-        .project-stats {
-            display: flex;
-            gap: 15px;
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 1px solid rgba(255, 255, 255, 0.05);
-        }
-        
-        .stat {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            color: #888;
-            font-size: 0.85rem;
-        }
-        
-        .stat i {
-            color: #8b5cf6;
-        }
-        
-        /* Loading Skeleton for Projects */
-        .skeleton-card {
-            background: linear-gradient(90deg, #0a0a0f 25%, #15151f 50%, #0a0a0f 75%);
-            background-size: 200% 100%;
-            animation: loading 1.5s infinite;
-            border-radius: 28px;
-            height: 400px;
-        }
-        
-        @keyframes loading {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
-        }
-        
-        /* ============ END ENHANCED PROJECT CARDS ============ */
         
         /* Button Animations */
         .btn-primary {
@@ -1129,7 +833,7 @@
         </div>
     </section>
 
-    <!-- Testimonials Section -->
+    <!-- Testimonials Section (New) -->
     <section id="testimonials" class="py-24 px-6 relative z-10 border-t border-white/5">
         <div class="max-w-7xl mx-auto">
             <div class="text-center mb-16 reveal">
@@ -1177,7 +881,7 @@
         </div>
     </section>
 
-    <!-- Projects Section with Enhanced Cards -->
+    <!-- Projects Section -->
     <section id="projects" class="py-24 px-6 relative z-10 bg-card border-t border-white/5">
         <div class="max-w-7xl mx-auto">
             
@@ -1187,13 +891,9 @@
             </div>
 
             <div id="projects-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <!-- Loader with enhanced skeleton -->
+                <!-- Loader -->
                 <div class="col-span-full text-center py-20">
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        <div class="skeleton-card"></div>
-                        <div class="skeleton-card"></div>
-                        <div class="skeleton-card"></div>
-                    </div>
+                    <i class="fas fa-circle-notch fa-spin text-4xl text-primary mb-4 block"></i>
                 </div>
             </div>
 
@@ -1466,69 +1166,23 @@
             }
 
             container.innerHTML = projects.map((p, index) => `
-                <div class="project-card group" style="transition-delay: ${index * 100}ms" data-aos="fade-up" data-aos-delay="${index * 100}">
+                <div class="project-card group flex flex-col bg-[#0a0a0f] rounded-3xl border border-white/[0.05] overflow-hidden hover:-translate-y-2 hover:shadow-[0_20px_40px_-15px_rgba(139,92,246,0.3)] hover:border-primary/30 transition-all duration-500 reveal" style="transition-delay: ${index * 100}ms" data-aos="fade-up" data-aos-delay="${index * 100}">
                     
-                    <!-- Project Badge -->
-                    <div class="project-badge">
-                        <i class="fas fa-star mr-1"></i> Featured
+                    <div class="relative w-full h-56 sm:h-64 overflow-hidden bg-[#111]">
+                        <img src="${p.image_url}" alt="${p.title}" class="absolute inset-0 w-full h-full object-cover object-center" loading="lazy">
+                        <div class="absolute inset-0 bg-gradient-to-t from-[#0a0a0f] via-[#0a0a0f]/20 to-transparent opacity-90"></div>
                     </div>
                     
-                    <!-- Image Container -->
-                    <div class="project-image-container">
-                        <img src="${p.image_url || 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80'}" alt="${p.title}" class="project-image" loading="lazy">
-                        <div class="project-overlay"></div>
+                    <div class="flex flex-col flex-grow p-6 pt-2 relative z-10">
+                        <h3 class="text-xl md:text-2xl font-bold text-white mb-3 group-hover:text-primary transition-colors duration-300 tracking-tight">${p.title}</h3>
+                        <p class="text-gray-400 text-sm leading-relaxed mb-6 flex-grow line-clamp-3 font-inter">${p.description}</p>
                         
-                        <!-- Tech Stack Tags -->
-                        <div class="project-tech-stack">
-                            <span class="tech-tag">React</span>
-                            <span class="tech-tag">Node.js</span>
-                            <span class="tech-tag">MongoDB</span>
-                            <span class="tech-tag">Tailwind</span>
-                        </div>
-                    </div>
-                    
-                    <!-- Project Content -->
-                    <div class="project-content">
-                        <h3 class="project-title">${p.title}</h3>
-                        <p class="project-description">${p.description || 'A full-stack web application built with modern technologies, featuring responsive design and optimal performance.'}</p>
-                        
-                        <!-- Project Metrics -->
-                        <div class="project-metrics">
-                            <div class="metric-item">
-                                <i class="far fa-clock"></i>
-                                <span>3 months</span>
-                            </div>
-                            <div class="metric-item">
-                                <i class="fas fa-code-branch"></i>
-                                <span>12 commits</span>
-                            </div>
-                            <div class="metric-item">
-                                <i class="fas fa-users"></i>
-                                <span>Solo</span>
-                            </div>
-                        </div>
-                        
-                        <!-- Project Stats -->
-                        <div class="project-stats">
-                            <div class="stat">
-                                <i class="far fa-star"></i>
-                                <span>24</span>
-                            </div>
-                            <div class="stat">
-                                <i class="fas fa-code"></i>
-                                <span>3.2k lines</span>
-                            </div>
-                            <div class="stat">
-                                <i class="far fa-eye"></i>
-                                <span>1.4k views</span>
-                            </div>
-                        </div>
-                        
-                        <!-- Action Button -->
-                        <div class="project-action">
-                            <a href="${p.live_url || '#'}" target="_blank" class="project-link">
-                                <span>View Live Demo</span>
-                                <i class="fas fa-arrow-right"></i>
+                        <div class="mt-auto pt-5 border-t border-white/[0.05]">
+                            <a href="${p.live_url}" target="_blank" class="flex items-center justify-between w-full px-5 py-3 rounded-xl bg-white/[0.02] hover:bg-primary text-white text-sm font-semibold transition-all duration-300 border border-white/[0.05] hover:border-primary group/btn">
+                                <span>View Live Project</span>
+                                <div class="w-8 h-8 flex-shrink-0 rounded-full bg-white/10 flex items-center justify-center group-hover/btn:bg-white/20 transition-colors">
+                                    <i class="fas fa-arrow-right text-xs group-hover/btn:-rotate-45 transition-transform duration-300"></i>
+                                </div>
                             </a>
                         </div>
                     </div>
