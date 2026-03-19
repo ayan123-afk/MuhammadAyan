@@ -1,0 +1,367 @@
+
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Muhammad Ayan | Full Stack Developer</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Poppins', 'sans-serif'], inter: ['Inter', 'sans-serif'] },
+                    colors: { dark: '#050505', card: '#0a0a0f', primary: '#8b5cf6', secondary: '#ec4899' }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #050505; color: #ffffff; overflow-x: hidden; }
+        
+        /* Typography */
+        .gradient-text { background: linear-gradient(135deg, #8b5cf6, #ec4899); -webkit-background-clip: text; color: transparent; }
+        
+        /* Background Glows */
+        .glow-blob { position: absolute; width: 600px; height: 600px; border-radius: 50%; filter: blur(120px); z-index: -1; pointer-events: none; opacity: 0.4; }
+        .glow-purple { background: rgba(139, 92, 246, 0.3); top: -200px; left: -200px; }
+        .glow-pink { background: rgba(236, 72, 153, 0.2); bottom: 10%; right: -200px; }
+
+        /* Animations */
+        .reveal { opacity: 0; transform: translateY(40px); transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 10px; }
+        ::-webkit-scrollbar-track { background: #050505; }
+        ::-webkit-scrollbar-thumb { background: #222; border-radius: 5px; }
+        ::-webkit-scrollbar-thumb:hover { background: #8b5cf6; }
+
+        /* Glassmorphism utility */
+        .glass { background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.05); }
+
+        /* Mobile Menu Transitions */
+        #mobile-menu {
+            transition: max-height 0.4s ease-in-out, opacity 0.4s ease-in-out;
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+        }
+        #mobile-menu.open {
+            max-height: 300px;
+            opacity: 1;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+    </style>
+</head>
+<body class="antialiased selection:bg-primary selection:text-white relative">
+
+    <!-- Ambient Backgrounds -->
+    <div class="glow-blob glow-purple"></div>
+    <div class="glow-blob glow-pink"></div>
+
+    <!-- Navbar -->
+    <nav class="fixed w-full z-50 glass transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center relative z-20">
+            
+            <!-- Logo -->
+            <a href="#home" class="flex items-center gap-3 text-2xl font-bold tracking-tighter group">
+                <img src="https://i.postimg.cc/L8b9hZ8F/made-this-with-gemini.jpg" alt="Logo" class="w-10 h-10 rounded-full object-cover border-2 border-transparent group-hover:border-primary transition-all duration-300">
+                Ayan<span class="text-primary">.</span>
+            </a>
+            
+            <!-- Desktop Menu -->
+            <div class="hidden md:flex space-x-8 text-sm font-medium">
+                <a href="#about" class="text-gray-300 hover:text-white hover:text-primary transition-colors">About</a>
+                <a href="#projects" class="text-gray-300 hover:text-white hover:text-primary transition-colors">Projects</a>
+                <a href="#contact" class="text-gray-300 hover:text-white hover:text-primary transition-colors">Contact</a>
+            </div>
+            
+            <!-- Let's Talk Button (Desktop) -->
+            <a href="#contact" class="hidden md:block bg-white/10 hover:bg-white/20 px-5 py-2 rounded-full text-sm font-medium transition-all">Let's Talk</a>
+
+            <!-- Mobile Hamburger Button -->
+            <button id="mobile-menu-btn" class="md:hidden text-gray-300 hover:text-white focus:outline-none p-2 cursor-pointer">
+                <i class="fas fa-bars text-2xl transition-transform duration-300" id="mobile-icon"></i>
+            </button>
+        </div>
+
+        <!-- Mobile Menu Dropdown -->
+        <div id="mobile-menu" class="md:hidden absolute w-full left-0 top-full bg-[#050505]/95 backdrop-blur-xl shadow-2xl z-10">
+            <div class="flex flex-col px-6 py-6 space-y-6 text-center">
+                <a href="#about" class="mobile-link text-gray-300 hover:text-primary text-lg font-medium transition-colors">About</a>
+                <a href="#projects" class="mobile-link text-gray-300 hover:text-primary text-lg font-medium transition-colors">Projects</a>
+                <a href="#contact" class="mobile-link text-gray-300 hover:text-primary text-lg font-medium transition-colors">Contact</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="min-h-screen flex items-center justify-center pt-24 pb-12 relative overflow-hidden">
+        <div class="w-full max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-8 items-center reveal active">
+            
+            <!-- Left Text Content -->
+            <div class="text-center lg:text-left order-2 lg:order-1 mt-8 lg:mt-0">
+                <div class="inline-flex items-center gap-2 mb-6 px-4 py-2 rounded-full glass text-primary text-xs font-semibold tracking-wide uppercase">
+                    <span class="relative flex h-2 w-2">
+                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                      <span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+                    </span>
+                    Available for new opportunities
+                </div>
+                
+                <h1 class="text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold mb-6 leading-tight tracking-tighter">
+                    Hi, I'm <br class="hidden lg:block"> <span class="gradient-text">Muhammad Ayan</span>
+                </h1>
+                
+                <p class="text-gray-400 text-lg md:text-xl mb-10 max-w-2xl mx-auto lg:mx-0 font-inter leading-relaxed">
+                    A passionate Full Stack Developer crafting exceptional, production-ready digital experiences. I turn complex problems into elegant, modern solutions.
+                </p>
+                
+                <div class="flex flex-col sm:flex-row justify-center lg:justify-start gap-4">
+                    <a href="#projects" class="bg-primary hover:bg-primary/90 text-white px-8 py-4 rounded-full font-medium transition-all hover:-translate-y-1 hover:shadow-[0_10px_30px_rgba(139,92,246,0.4)] inline-flex items-center justify-center">
+                        Explore My Work <i class="fas fa-arrow-right ml-2"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Right Corner Profile Picture -->
+            <div class="flex justify-center lg:justify-end order-1 lg:order-2">
+                <div class="relative w-64 h-64 sm:w-80 sm:h-80 lg:w-[450px] lg:h-[450px]">
+                    <!-- Outer Glowing Ring -->
+                    <div class="absolute inset-0 bg-gradient-to-tr from-primary to-secondary rounded-full blur-2xl opacity-30 animate-pulse"></div>
+                    <!-- Inner Background to separate image -->
+                    <div class="absolute inset-2 bg-[#050505] rounded-full z-0"></div>
+                    
+                    <!-- The Profile Picture -->
+                    <div class="relative z-10 w-full h-full rounded-full p-2 bg-gradient-to-tr from-primary to-secondary shadow-[0_0_50px_rgba(139,92,246,0.3)] hover:shadow-[0_0_80px_rgba(236,72,153,0.4)] transition-all duration-500 hover:-translate-y-2">
+                        <img src="https://i.postimg.cc/L8b9hZ8F/made-this-with-gemini.jpg" alt="Muhammad Ayan Profile" class="w-full h-full object-cover rounded-full border-4 border-[#050505]">
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="py-24 px-6 relative z-10 border-t border-white/5">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+                <div class="reveal">
+                    <h2 class="text-4xl md:text-5xl font-bold mb-6 tracking-tight">About <span class="gradient-text">Me</span></h2>
+                    <p class="text-gray-400 font-inter text-lg leading-relaxed mb-6">
+                        I am a dedicated software engineer with a profound love for building highly scalable web applications and breathtaking user interfaces. My journey involves mastering the art of seamless user experiences backed by robust, secure architectures.
+                    </p>
+                    <p class="text-gray-400 font-inter text-lg leading-relaxed mb-8">
+                        Whether it's designing a pixel-perfect front-end or structuring a complex backend database, I approach every project with a startup mindset: fast, efficient, and beautifully executed.
+                    </p>
+                    
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                        <div class="glass p-4 rounded-2xl text-center hover:border-primary/50 transition-colors">
+                            <h3 class="text-3xl font-bold text-white mb-1">3+</h3>
+                            <p class="text-xs text-gray-400 uppercase tracking-wider font-semibold">Years Exp.</p>
+                        </div>
+                        <div class="glass p-4 rounded-2xl text-center hover:border-primary/50 transition-colors">
+                            <h3 class="text-3xl font-bold text-white mb-1">50+</h3>
+                            <p class="text-xs text-gray-400 uppercase tracking-wider font-semibold">Projects</p>
+                        </div>
+                        <div class="glass p-4 rounded-2xl text-center hover:border-primary/50 transition-colors sm:col-span-1 col-span-2">
+                            <h3 class="text-3xl font-bold text-white mb-1">100%</h3>
+                            <p class="text-xs text-gray-400 uppercase tracking-wider font-semibold">Client Success</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="relative reveal mt-8 lg:mt-0">
+                    <div class="absolute inset-0 bg-gradient-to-tr from-primary/20 to-secondary/20 rounded-3xl blur-2xl transform rotate-6"></div>
+                    <div class="glass rounded-3xl p-8 relative z-10 border border-white/10 h-full flex flex-col justify-center">
+                        <div class="space-y-6">
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 flex-shrink-0 rounded-full bg-yellow-400/10 flex items-center justify-center text-yellow-400 text-2xl"><i class="fab fa-js"></i></div>
+                                <div><h4 class="font-bold text-lg">JavaScript Ecosystem</h4><p class="text-sm text-gray-400">React, Next.js, Node.js</p></div>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 flex-shrink-0 rounded-full bg-blue-400/10 flex items-center justify-center text-blue-400 text-2xl"><i class="fab fa-css3-alt"></i></div>
+                                <div><h4 class="font-bold text-lg">Modern Styling</h4><p class="text-sm text-gray-400">Tailwind CSS, Framer Motion</p></div>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 flex-shrink-0 rounded-full bg-green-400/10 flex items-center justify-center text-green-400 text-2xl"><i class="fas fa-database"></i></div>
+                                <div><h4 class="font-bold text-lg">Backend & Data</h4><p class="text-sm text-gray-400">SQL, NoSQL, Modern APIs</p></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Projects Section -->
+    <section id="projects" class="py-24 px-6 relative z-10 bg-card border-t border-white/5">
+        <div class="max-w-7xl mx-auto">
+            
+            <div class="text-center mb-16 reveal">
+                <h2 class="text-4xl md:text-5xl font-bold mb-4 tracking-tight">Featured <span class="gradient-text">Projects</span></h2>
+                <p class="text-gray-400 font-inter text-lg">Fetched dynamically from my backend database.</p>
+            </div>
+
+            <div id="projects-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Loader -->
+                <div class="col-span-full text-center py-20">
+                    <i class="fas fa-circle-notch fa-spin text-4xl text-primary mb-4 block"></i>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-24 px-6 relative z-10 border-t border-white/5">
+        <div class="max-w-4xl mx-auto text-center reveal">
+            <h2 class="text-4xl md:text-5xl font-bold mb-6 tracking-tight">Let's build something <span class="gradient-text">amazing</span></h2>
+            <p class="text-gray-400 font-inter text-lg mb-12 max-w-2xl mx-auto">
+                My inbox is always open. Whether you have a question, a project idea, or just want to say hi, I'll try my best to get back to you!
+            </p>
+            
+            <div class="glass rounded-3xl p-8 md:p-12 relative overflow-hidden group border border-white/10 hover:border-primary/40 transition-colors duration-500">
+                <div class="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                
+                <div class="relative z-10 flex flex-col items-center">
+                    <div class="w-20 h-20 rounded-full glass flex items-center justify-center text-primary text-3xl mb-6 shadow-[0_0_30px_rgba(139,92,246,0.2)]">
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                    <h3 class="text-lg md:text-2xl font-bold mb-2 break-all">madevelopersoffical@gmail.com</h3>
+                    <p class="text-gray-400 mb-8 font-inter">Lahore, Pakistan • Open to remote worldwide</p>
+                    
+                    <a href="mailto:contact@muhammadayan.com" class="bg-white text-black hover:bg-gray-200 px-8 py-4 rounded-full font-bold transition-all hover:scale-105 mb-8">
+                        Say Hello <i class="fas fa-paper-plane ml-2"></i>
+                    </a>
+
+                    <div class="flex gap-6 mt-4 border-t border-white/10 pt-8 w-full justify-center">
+                        <a href="https://github.com/ayan123-afk/" class="text-gray-400 hover:text-primary transform hover:-translate-y-1 transition-all text-2xl"><i class="fab fa-github"></i></a>
+                        <a href="https://www.linkedin.com/in/mr-ayan-ma-developers-152201371/" class="text-gray-400 hover:text-[#0a66c2] transform hover:-translate-y-1 transition-all text-2xl"><i class="fab fa-linkedin"></i></a>
+                        <a href="https://www.facebook.com/profile.php?id=61577401122875" class="text-gray-400 hover:text-[#1da1f2] transform hover:-translate-y-1 transition-all text-2xl"><i class="fab fa-facebook"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-8 text-center border-t border-white/5 bg-card relative z-20 px-4">
+        <p class="text-gray-500 text-sm font-inter leading-relaxed">
+            © 2026 Muhammad Ayan. Built with passion & Developed By MA Developers.
+        </p>
+    </footer>
+
+    <!-- UI Logic -->
+    <script>
+        const mobileBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const mobileIcon = document.getElementById('mobile-icon');
+        const mobileLinks = document.querySelectorAll('.mobile-link');
+
+        function toggleMenu() {
+            mobileMenu.classList.toggle('open');
+            if(mobileMenu.classList.contains('open')) {
+                mobileIcon.classList.remove('fa-bars');
+                mobileIcon.classList.add('fa-times');
+                mobileIcon.style.transform = 'rotate(90deg)';
+            } else {
+                mobileIcon.classList.remove('fa-times');
+                mobileIcon.classList.add('fa-bars');
+                mobileIcon.style.transform = 'rotate(0deg)';
+            }
+        }
+
+        mobileBtn.addEventListener('click', toggleMenu);
+
+        mobileLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                if (mobileMenu.classList.contains('open')) {
+                    toggleMenu();
+                }
+            });
+        });
+
+        window.initAnimations = function() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('active');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.1, rootMargin: "0px 0px -50px 0px" });
+
+            document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            window.initAnimations();
+        });
+    </script>
+
+    <!-- Database Logic -->
+    <script type="module">
+        import { fetchProjects } from './supabase.js';
+
+        async function loadProjects() {
+            const container = document.getElementById('projects-container');
+            let projects;
+            
+            try {
+                projects = await fetchProjects();
+            } catch (error) {
+                console.error("Error fetching projects:", error);
+                projects = []; 
+            }
+            
+            if (!projects || projects.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full flex flex-col items-center justify-center py-20 glass rounded-3xl mx-4">
+                        <i class="fas fa-folder-open text-6xl text-gray-600 mb-4"></i>
+                        <p class="text-gray-400 text-lg">No projects found.</p>
+                        <a href="admin.html" class="mt-4 text-primary hover:text-white transition-colors">Go to Admin Panel &rarr;</a>
+                    </div>`;
+                return;
+            }
+
+            container.innerHTML = projects.map((p, index) => `
+                <div class="group flex flex-col bg-[#0a0a0f] rounded-3xl border border-white/[0.05] overflow-hidden hover:-translate-y-2 hover:shadow-[0_20px_40px_-15px_rgba(139,92,246,0.3)] hover:border-primary/30 transition-all duration-500 reveal" style="transition-delay: ${index * 100}ms">
+                    
+                    <div class="relative w-full h-56 sm:h-64 overflow-hidden bg-[#111]">
+                        <img src="${p.image_url}" alt="${p.title}" class="absolute inset-0 w-full h-full object-cover object-center transform group-hover:scale-110 transition-transform duration-700 ease-in-out" loading="lazy">
+                        <div class="absolute inset-0 bg-gradient-to-t from-[#0a0a0f] via-[#0a0a0f]/20 to-transparent opacity-90"></div>
+                    </div>
+                    
+                    <div class="flex flex-col flex-grow p-6 pt-2 relative z-10">
+                        <h3 class="text-xl md:text-2xl font-bold text-white mb-3 group-hover:text-primary transition-colors duration-300 tracking-tight">${p.title}</h3>
+                        <p class="text-gray-400 text-sm leading-relaxed mb-6 flex-grow line-clamp-3 font-inter">${p.description}</p>
+                        
+                        <div class="mt-auto pt-5 border-t border-white/[0.05]">
+                            <a href="${p.live_url}" target="_blank" class="flex items-center justify-between w-full px-5 py-3 rounded-xl bg-white/[0.02] hover:bg-primary text-white text-sm font-semibold transition-all duration-300 border border-white/[0.05] hover:border-primary group/btn">
+                                <span>View Live Project</span>
+                                <div class="w-8 h-8 flex-shrink-0 rounded-full bg-white/10 flex items-center justify-center group-hover/btn:bg-white/20 transition-colors">
+                                    <i class="fas fa-arrow-right text-xs group-hover/btn:-rotate-45 transition-transform duration-300"></i>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            setTimeout(() => window.initAnimations(), 100);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadProjects();
+        });
+    </script>
+</body>
+</html>
