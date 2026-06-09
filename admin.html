@@ -1,1 +1,1226 @@
-<!DOCTYPE html> <html lang="en"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>Admin Dashboard | Portfolio</title> <script src="https://cdn.tailwindcss.com"></script> <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"> <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet"> <script> tailwind.config = { theme: { extend: { fontFamily: { sans: ['Poppins', 'sans-serif'] }, colors: { primary: '#8b5cf6' } } } } </script> <style> body { background-color: #050505; color: #ffffff; } .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); } .input-field { background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.1); color: white; transition: all 0.3s; } .input-field:focus { outline: none; border-color: #8b5cf6; } input[type="file"]::file-selector-button { background-color: #8b5cf6; color: white; border: none; padding: 0.5rem 1rem; border-radius: 0.5rem; cursor: pointer; margin-right: 1rem; } </style> </head> <body class="antialiased min-h-screen flex items-center justify-center p-6 relative"> <div class="w-full max-w-lg glass rounded-3xl p-8 relative z-10"> <div class="flex justify-between items-center mb-6"> <h1 class="text-3xl font-bold">Add Project</h1> <a href="index.html" class="text-gray-400 hover:text-white"><i class="fas fa-home text-xl"></i></a> </div> <!-- SUCCESS ALERT --> <div id="success-box" class="hidden mb-6 bg-green-500/10 border border-green-500/50 text-green-400 px-4 py-3 rounded-lg text-sm"> <i class="fas fa-check-circle mr-2"></i> Successfully published! </div> <!-- ERROR ALERT --> <div id="error-box" class="hidden mb-6 bg-red-500/10 border border-red-500/50 text-red-400 px-4 py-3 rounded-lg text-sm break-words"> <i class="fas fa-exclamation-triangle mr-2"></i> <span id="error-message">Error</span> </div> <form id="add-form" class="space-y-5"> <div> <label class="block text-sm text-gray-400 mb-1">Title</label> <input type="text" id="title" required class="input-field w-full px-4 py-3 rounded-xl" placeholder="Project Name"> </div> <div> <label class="block text-sm text-gray-400 mb-1">Description</label> <textarea id="description" required rows="3" class="input-field w-full px-4 py-3 rounded-xl" placeholder="Project details..."></textarea> </div> <div> <label class="block text-sm text-gray-400 mb-1">Live URL</label> <input type="url" id="live_url" required class="input-field w-full px-4 py-3 rounded-xl" placeholder="https://..."> </div> <div> <label class="block text-sm text-gray-400 mb-1">Image Cover</label> <input type="file" id="image" accept="image/*" required class="input-field w-full px-4 py-2 rounded-xl text-gray-400"> </div> <button type="submit" id="submit-btn" class="w-full bg-primary hover:bg-primary/90 text-white font-bold py-4 rounded-xl transition-all mt-4"> Publish Project </button> </form> </div> <script type="module"> import { uploadImage, addProject } from './supabase.js'; const form = document.getElementById('add-form'); const submitBtn = document.getElementById('submit-btn'); const successBox = document.getElementById('success-box'); const errorBox = document.getElementById('error-box'); const errorMsg = document.getElementById('error-message'); form.addEventListener('submit', async (e) => { e.preventDefault(); // Reset UI successBox.classList.add('hidden'); errorBox.classList.add('hidden'); submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Uploading Image...'; submitBtn.disabled = true; submitBtn.classList.add('opacity-50'); try { const file = document.getElementById('image').files[0]; if (!file) throw new Error("Please select an image file."); // 1. Upload Image const uploadRes = await uploadImage(file); if (!uploadRes.success) throw new Error("Image Upload Error: " + uploadRes.error); // 2. Insert to Database submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Saving to Database...'; const projectData = { title: document.getElementById('title').value, description: document.getElementById('description').value, live_url: document.getElementById('live_url').value, image_url: uploadRes.url }; const dbRes = await addProject(projectData); if (!dbRes.success) throw new Error("Database Error: " + dbRes.error); // 3. Success form.reset(); successBox.classList.remove('hidden'); } catch (error) { // Show Error errorMsg.innerText = error.message; errorBox.classList.remove('hidden'); } finally { // Restore Button submitBtn.innerHTML = 'Publish Project'; submitBtn.disabled = false; submitBtn.classList.remove('opacity-50'); } }); </script> </body> </html>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel | Muhammad Ayan Portfolio</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0a0a0a;
+            color: #ffffff;
+            min-height: 100vh;
+        }
+
+        /* Login Page Styles */
+        #loginPage {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        #loginPage::before {
+            content: '';
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 70%);
+            top: -150px;
+            right: -150px;
+            border-radius: 50%;
+        }
+
+        #loginPage::after {
+            content: '';
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.1) 0%, transparent 70%);
+            bottom: -150px;
+            left: -150px;
+            border-radius: 50%;
+        }
+
+        .login-box {
+            background: rgba(26, 26, 26, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            border-radius: 24px;
+            padding: 48px;
+            width: 100%;
+            max-width: 440px;
+            position: relative;
+            z-index: 1;
+            transition: all 0.3s;
+        }
+
+        .login-box:hover {
+            border-color: rgba(59, 130, 246, 0.5);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .login-logo {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .login-logo i {
+            font-size: 48px;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .login-box h2 {
+            text-align: center;
+            margin-bottom: 8px;
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .login-box p {
+            text-align: center;
+            color: #a0a0a0;
+            margin-bottom: 32px;
+            font-size: 0.9rem;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.85rem;
+            color: #a0a0a0;
+            font-weight: 500;
+        }
+
+        .form-group label i {
+            margin-right: 6px;
+            color: #3b82f6;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 14px 18px;
+            background: #0a0a0a;
+            border: 1px solid #2a2a2a;
+            border-radius: 12px;
+            color: #ffffff;
+            font-size: 0.95rem;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            color: white;
+            width: 100%;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(239, 68, 68, 0.3);
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1.5px solid #2a2a2a;
+            color: #a0a0a0;
+        }
+
+        .btn-outline:hover {
+            border-color: #3b82f6;
+            color: #3b82f6;
+        }
+
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 0.85rem;
+        }
+
+        .error-box, .success-box {
+            padding: 12px 16px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            display: none;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .error-box {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid #ef4444;
+            color: #ef4444;
+        }
+
+        .success-box {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid #10b981;
+            color: #10b981;
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 24px;
+        }
+
+        .back-link a {
+            color: #3b82f6;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+
+        .back-link a:hover {
+            text-decoration: underline;
+        }
+
+        /* Dashboard Styles */
+        #dashboard {
+            display: none;
+        }
+
+        .header {
+            background: #1a1a1a;
+            border-bottom: 1px solid #2a2a2a;
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header h1 {
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header h1 i {
+            font-size: 1.5rem;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .user-email {
+            color: #a0a0a0;
+            font-size: 0.85rem;
+            padding: 6px 12px;
+            background: #0a0a0a;
+            border-radius: 20px;
+        }
+
+        .content {
+            padding: 24px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: #1a1a1a;
+            border: 1px solid #2a2a2a;
+            padding: 24px;
+            border-radius: 20px;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            transform: scaleX(0);
+            transition: transform 0.3s;
+        }
+
+        .stat-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            border-color: #3b82f6;
+        }
+
+        .stat-card h3 {
+            font-size: 2rem;
+            margin-bottom: 4px;
+            font-weight: 700;
+        }
+
+        .stat-card p {
+            color: #a0a0a0;
+            font-size: 0.85rem;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+            border-bottom: 1px solid #2a2a2a;
+            padding-bottom: 16px;
+        }
+
+        .tab-btn {
+            padding: 10px 24px;
+            background: none;
+            border: none;
+            color: #a0a0a0;
+            cursor: pointer;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .tab-btn i {
+            margin-right: 8px;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            color: white;
+        }
+
+        .tab-btn:hover:not(.active) {
+            background: rgba(59, 130, 246, 0.1);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Table Styles */
+        .table-container {
+            background: #1a1a1a;
+            border: 1px solid #2a2a2a;
+            border-radius: 20px;
+            overflow: hidden;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 800px;
+        }
+
+        th {
+            text-align: left;
+            padding: 16px 20px;
+            background: #111111;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #a0a0a0;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 16px 20px;
+            border-top: 1px solid #2a2a2a;
+            font-size: 0.9rem;
+        }
+
+        tr:hover {
+            background: rgba(59, 130, 246, 0.05);
+        }
+
+        .badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            display: inline-block;
+        }
+
+        .badge-read {
+            background: rgba(16, 185, 129, 0.1);
+            color: #10b981;
+        }
+
+        .badge-unread {
+            background: rgba(245, 158, 11, 0.1);
+            color: #f59e0b;
+        }
+
+        .action-btns {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal.active {
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-box {
+            background: #1a1a1a;
+            border: 1px solid #2a2a2a;
+            border-radius: 24px;
+            padding: 32px;
+            width: 100%;
+            max-width: 550px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-box h3 {
+            margin-bottom: 24px;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .modal-box h3 i {
+            color: #3b82f6;
+        }
+
+        .modal-box textarea {
+            width: 100%;
+            padding: 12px 16px;
+            background: #0a0a0a;
+            border: 1px solid #2a2a2a;
+            border-radius: 12px;
+            color: #ffffff;
+            font-size: 0.95rem;
+            font-family: 'Inter', sans-serif;
+            resize: vertical;
+        }
+
+        .modal-btns {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .modal-btns .btn {
+            flex: 1;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #a0a0a0;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .section-header h2 {
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #1a1a1a;
+            border: 1px solid #3b82f6;
+            padding: 12px 20px;
+            border-radius: 12px;
+            color: white;
+            z-index: 1100;
+            transform: translateX(400px);
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+            
+            .content {
+                padding: 16px;
+            }
+            
+            .login-box {
+                padding: 32px 24px;
+                margin: 20px;
+            }
+            
+            .modal-box {
+                padding: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Page -->
+    <div id="loginPage">
+        <div class="login-box">
+            <div class="login-logo">
+                <i class="fas fa-shield-alt"></i>
+            </div>
+            <h2>Admin Portal</h2>
+            <p>Sign in to manage your portfolio content</p>
+            
+            <div class="error-box" id="loginError">
+                <i class="fas fa-exclamation-circle"></i>
+                <span id="errorMessage"></span>
+            </div>
+            
+            <form id="loginForm">
+                <div class="form-group">
+                    <label><i class="fas fa-envelope"></i> Email Address</label>
+                    <input type="email" id="email" placeholder="admin@example.com" required autocomplete="email">
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-lock"></i> Password</label>
+                    <input type="password" id="password" placeholder="Enter your password" required autocomplete="current-password">
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-sign-in-alt"></i> Sign In
+                </button>
+            </form>
+            
+            <div class="back-link">
+                <a href="index.html">
+                    <i class="fas fa-arrow-left"></i> Back to Portfolio
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard -->
+    <div id="dashboard">
+        <div class="header">
+            <h1>
+                <i class="fas fa-shield-alt"></i>
+                Admin Dashboard
+            </h1>
+            <div class="user-info">
+                <span class="user-email" id="userEmail">
+                    <i class="fas fa-user"></i> Loading...
+                </span>
+                <button class="btn btn-danger btn-sm" onclick="handleLogout()">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+        </div>
+
+        <div class="content">
+            <!-- Stats Cards -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3 style="color: #3b82f6;" id="projectCount">0</h3>
+                    <p><i class="fas fa-code"></i> Total Projects</p>
+                </div>
+                <div class="stat-card">
+                    <h3 style="color: #8b5cf6;" id="messageCount">0</h3>
+                    <p><i class="fas fa-envelope"></i> Total Messages</p>
+                </div>
+                <div class="stat-card">
+                    <h3 style="color: #f59e0b;" id="unreadCount">0</h3>
+                    <p><i class="fas fa-envelope-open"></i> Unread Messages</p>
+                </div>
+                <div class="stat-card">
+                    <h3 style="color: #10b981;">
+                        <i class="fas fa-circle" style="font-size: 0.8rem;"></i>
+                    </h3>
+                    <p><i class="fas fa-check-circle"></i> System Online</p>
+                </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchTab('projects')">
+                    <i class="fas fa-code"></i> Projects
+                </button>
+                <button class="tab-btn" onclick="switchTab('messages')">
+                    <i class="fas fa-envelope"></i> Messages
+                </button>
+            </div>
+
+            <!-- Projects Tab -->
+            <div class="tab-content active" id="projectsTab">
+                <div class="section-header">
+                    <h2><i class="fas fa-folder-open"></i> Manage Projects</h2>
+                    <button class="btn btn-primary btn-sm" onclick="openProjectModal()">
+                        <i class="fas fa-plus"></i> Add New Project
+                    </button>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Category</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="projectsTableBody">
+                            <tr>
+                                <td colspan="4">
+                                    <div class="empty-state">
+                                        <i class="fas fa-spinner fa-spin"></i>
+                                        <p>Loading projects...</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Messages Tab -->
+            <div class="tab-content" id="messagesTab">
+                <div class="section-header">
+                    <h2><i class="fas fa-inbox"></i> Contact Messages</h2>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Message</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="messagesTableBody">
+                            <tr>
+                                <td colspan="6">
+                                    <div class="empty-state">
+                                        <i class="fas fa-spinner fa-spin"></i>
+                                        <p>Loading messages...</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Project Modal -->
+    <div class="modal" id="projectModal">
+        <div class="modal-box">
+            <h3><i class="fas fa-code"></i> <span id="modalTitle">Add New Project</span></h3>
+            <form id="projectForm">
+                <input type="hidden" id="projectId">
+                
+                <div class="form-group">
+                    <label>Project Title *</label>
+                    <input type="text" id="projectTitle" placeholder="e.g., AI Image Generator" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="projectDescription" rows="3" placeholder="Brief description of your project..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>Category</label>
+                    <input type="text" id="projectCategory" placeholder="e.g., Web Development, AI Tool">
+                </div>
+                
+                <div class="form-group">
+                    <label>Tags (comma separated)</label>
+                    <input type="text" id="projectTags" placeholder="React, Firebase, AI">
+                </div>
+                
+                <div class="form-group">
+                    <label>Icon (Font Awesome class)</label>
+                    <input type="text" id="projectIcon" placeholder="fas fa-code" value="fas fa-code">
+                </div>
+                
+                <div class="form-group">
+                    <label>GitHub URL</label>
+                    <input type="url" id="projectGithub" placeholder="https://github.com/username/project">
+                </div>
+                
+                <div class="form-group">
+                    <label>Live Demo URL</label>
+                    <input type="url" id="projectLiveUrl" placeholder="https://your-project.com">
+                </div>
+                
+                <div class="modal-btns">
+                    <button type="submit" class="btn btn-primary" id="saveBtn">
+                        <i class="fas fa-save"></i> Save Project
+                    </button>
+                    <button type="button" class="btn btn-outline" onclick="closeProjectModal()">
+                        Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast"></div>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    
+    <!-- Firebase Config -->
+    <script src="firebase.js"></script>
+
+    <script>
+        // Global variables
+        let currentUser = null;
+        let currentProjectId = null;
+
+        // Toast function
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i> ${message}`;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Check auth state
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                currentUser = user;
+                document.getElementById('loginPage').style.display = 'none';
+                document.getElementById('dashboard').style.display = 'block';
+                document.getElementById('userEmail').innerHTML = `<i class="fas fa-user-circle"></i> ${user.email}`;
+                loadDashboardData();
+            } else {
+                currentUser = null;
+                document.getElementById('loginPage').style.display = 'flex';
+                document.getElementById('dashboard').style.display = 'none';
+            }
+        });
+
+        // Login handler
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const errorBox = document.getElementById('loginError');
+            const errorMsg = document.getElementById('errorMessage');
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            
+            errorBox.style.display = 'none';
+            
+            if (!email || !password) {
+                errorMsg.textContent = 'Please enter both email and password.';
+                errorBox.style.display = 'flex';
+                return;
+            }
+            
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
+            submitBtn.disabled = true;
+            
+            try {
+                await auth.signInWithEmailAndPassword(email, password);
+                showToast('Login successful! Welcome back.', 'success');
+            } catch (error) {
+                console.error('Login error:', error);
+                let message = 'Login failed. Please check your credentials.';
+                
+                switch (error.code) {
+                    case 'auth/invalid-email':
+                        message = 'Invalid email address format.';
+                        break;
+                    case 'auth/user-not-found':
+                        message = 'No account found with this email.';
+                        break;
+                    case 'auth/wrong-password':
+                        message = 'Incorrect password. Please try again.';
+                        break;
+                    case 'auth/too-many-requests':
+                        message = 'Too many failed attempts. Please try again later.';
+                        break;
+                }
+                
+                errorMsg.textContent = message;
+                errorBox.style.display = 'flex';
+            } finally {
+                submitBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
+                submitBtn.disabled = false;
+            }
+        });
+
+        // Logout handler
+        async function handleLogout() {
+            try {
+                await auth.signOut();
+                showToast('Logged out successfully', 'success');
+            } catch (error) {
+                console.error('Logout error:', error);
+                showToast('Error logging out', 'error');
+            }
+        }
+
+        // Load dashboard data
+        async function loadDashboardData() {
+            await Promise.all([
+                loadProjects(),
+                loadMessages(),
+                loadStats()
+            ]);
+        }
+
+        // Load stats
+        async function loadStats() {
+            try {
+                const projectSnapshot = await db.collection('projects').get();
+                const messageSnapshot = await db.collection('messages').get();
+                
+                document.getElementById('projectCount').textContent = projectSnapshot.size;
+                document.getElementById('messageCount').textContent = messageSnapshot.size;
+                
+                let unread = 0;
+                messageSnapshot.forEach(doc => {
+                    if (!doc.data().read) unread++;
+                });
+                document.getElementById('unreadCount').textContent = unread;
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        // Load projects
+        async function loadProjects() {
+            const tbody = document.getElementById('projectsTableBody');
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;"><i class="fas fa-spinner fa-spin"></i> Loading...</td></tr>';
+            
+            try {
+                const snapshot = await db.collection('projects')
+                    .orderBy('createdAt', 'desc')
+                    .get();
+                
+                if (snapshot.empty) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="4">
+                                <div class="empty-state">
+                                    <i class="fas fa-folder-open"></i>
+                                    <p>No projects yet. Click "Add New Project" to get started.</p>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+                
+                tbody.innerHTML = '';
+                snapshot.forEach(doc => {
+                    const project = doc.data();
+                    const date = project.createdAt 
+                        ? new Date(project.createdAt.toDate()).toLocaleDateString()
+                        : 'N/A';
+                    
+                    tbody.innerHTML += `
+                        <tr>
+                            <td><strong>${escapeHtml(project.title || 'Untitled')}</strong></td>
+                            <td><span class="badge badge-read">${escapeHtml(project.category || 'Uncategorized')}</span></td>
+                            <td>${date}</td>
+                            <td>
+                                <div class="action-btns">
+                                    <button class="btn btn-primary btn-sm" onclick="editProject('${doc.id}')">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </button>
+                                    <button class="btn btn-danger btn-sm" onclick="deleteProjectById('${doc.id}', '${escapeHtml(project.title || 'Untitled')}')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                });
+            } catch (error) {
+                console.error('Error loading projects:', error);
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#ef4444;">Error loading projects</td></tr>';
+            }
+        }
+
+        // Load messages
+        async function loadMessages() {
+            const tbody = document.getElementById('messagesTableBody');
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;"><i class="fas fa-spinner fa-spin"></i> Loading...</td></tr>';
+            
+            try {
+                const snapshot = await db.collection('messages')
+                    .orderBy('createdAt', 'desc')
+                    .get();
+                
+                if (snapshot.empty) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="6">
+                                <div class="empty-state">
+                                    <i class="fas fa-envelope"></i>
+                                    <p>No messages yet</p>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+                
+                tbody.innerHTML = '';
+                snapshot.forEach(doc => {
+                    const msg = doc.data();
+                    const date = msg.createdAt 
+                        ? new Date(msg.createdAt.toDate()).toLocaleString()
+                        : 'N/A';
+                    
+                    tbody.innerHTML += `
+                        <tr style="${!msg.read ? 'background: rgba(59, 130, 246, 0.05);' : ''}">
+                            <td><strong>${escapeHtml(msg.name || 'Anonymous')}</strong></td>
+                            <td>${escapeHtml(msg.email || 'N/A')}</td>
+                            <td style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                ${escapeHtml(msg.message || '')}
+                            </td>
+                            <td style="font-size: 0.8rem;">${date}</td>
+                            <td>
+                                <span class="badge ${msg.read ? 'badge-read' : 'badge-unread'}">
+                                    ${msg.read ? 'Read' : 'Unread'}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="action-btns">
+                                    <button class="btn btn-primary btn-sm" onclick="viewMessage('${doc.id}')">
+                                        <i class="fas fa-eye"></i> View
+                                    </button>
+                                    ${!msg.read ? `
+                                        <button class="btn btn-success btn-sm" onclick="markAsRead('${doc.id}')">
+                                            <i class="fas fa-check"></i> Mark Read
+                                        </button>
+                                    ` : ''}
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                });
+            } catch (error) {
+                console.error('Error loading messages:', error);
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#ef4444;">Error loading messages</td></tr>';
+            }
+        }
+
+        // Switch tabs
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(tabName + 'Tab').classList.add('active');
+        }
+
+        // Open project modal
+        function openProjectModal() {
+            currentProjectId = null;
+            document.getElementById('modalTitle').innerHTML = '<i class="fas fa-plus"></i> Add New Project';
+            document.getElementById('projectForm').reset();
+            document.getElementById('projectId').value = '';
+            document.getElementById('projectIcon').value = 'fas fa-code';
+            document.getElementById('projectModal').classList.add('active');
+        }
+
+        // Edit project
+        async function editProject(id) {
+            try {
+                const doc = await db.collection('projects').doc(id).get();
+                if (!doc.exists) {
+                    showToast('Project not found', 'error');
+                    return;
+                }
+                
+                const project = doc.data();
+                currentProjectId = id;
+                
+                document.getElementById('modalTitle').innerHTML = '<i class="fas fa-edit"></i> Edit Project';
+                document.getElementById('projectId').value = id;
+                document.getElementById('projectTitle').value = project.title || '';
+                document.getElementById('projectDescription').value = project.description || '';
+                document.getElementById('projectCategory').value = project.category || '';
+                document.getElementById('projectTags').value = project.tags ? project.tags.join(', ') : '';
+                document.getElementById('projectIcon').value = project.icon || 'fas fa-code';
+                document.getElementById('projectGithub').value = project.github || '';
+                document.getElementById('projectLiveUrl').value = project.liveUrl || '';
+                
+                document.getElementById('projectModal').classList.add('active');
+            } catch (error) {
+                console.error('Error fetching project:', error);
+                showToast('Error loading project', 'error');
+            }
+        }
+
+        // Close modal
+        function closeProjectModal() {
+            document.getElementById('projectModal').classList.remove('active');
+            currentProjectId = null;
+        }
+
+        // Save project
+        document.getElementById('projectForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const title = document.getElementById('projectTitle').value.trim();
+            
+            if (!title) {
+                showToast('Please enter a project title', 'error');
+                return;
+            }
+            
+            const projectData = {
+                title: title,
+                description: document.getElementById('projectDescription').value.trim(),
+                category: document.getElementById('projectCategory').value.trim() || 'General',
+                tags: document.getElementById('projectTags').value
+                    .split(',')
+                    .map(tag => tag.trim())
+                    .filter(tag => tag),
+                icon: document.getElementById('projectIcon').value.trim() || 'fas fa-code',
+                github: document.getElementById('projectGithub').value.trim(),
+                liveUrl: document.getElementById('projectLiveUrl').value.trim(),
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+            
+            const saveBtn = document.getElementById('saveBtn');
+            saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+            saveBtn.disabled = true;
+            
+            try {
+                if (currentProjectId) {
+                    await db.collection('projects').doc(currentProjectId).update(projectData);
+                    showToast('Project updated successfully!', 'success');
+                } else {
+                    projectData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+                    await db.collection('projects').add(projectData);
+                    showToast('Project added successfully!', 'success');
+                }
+                
+                closeProjectModal();
+                await loadDashboardData();
+            } catch (error) {
+                console.error('Error saving project:', error);
+                showToast('Error saving project: ' + error.message, 'error');
+            } finally {
+                saveBtn.innerHTML = '<i class="fas fa-save"></i> Save Project';
+                saveBtn.disabled = false;
+            }
+        });
+
+        // Delete project
+        async function deleteProjectById(id, title) {
+            if (!confirm(`Are you sure you want to delete "${title}"?\n\nThis action cannot be undone.`)) {
+                return;
+            }
+            
+            try {
+                await db.collection('projects').doc(id).delete();
+                showToast('Project deleted successfully', 'success');
+                await loadDashboardData();
+            } catch (error) {
+                console.error('Error deleting project:', error);
+                showToast('Error deleting project', 'error');
+            }
+        }
+
+        // View message
+        async function viewMessage(id) {
+            try {
+                const doc = await db.collection('messages').doc(id).get();
+                if (!doc.exists) {
+                    showToast('Message not found', 'error');
+                    return;
+                }
+                
+                const msg = doc.data();
+                alert(`📧 Message Details\n\nFrom: ${msg.name}\nEmail: ${msg.email}\nDate: ${msg.createdAt ? new Date(msg.createdAt.toDate()).toLocaleString() : 'N/A'}\n\nMessage:\n${msg.message}`);
+                
+                if (!msg.read) {
+                    await db.collection('messages').doc(id).update({ read: true });
+                    await loadDashboardData();
+                    showToast('Message marked as read', 'success');
+                }
+            } catch (error) {
+                console.error('Error viewing message:', error);
+                showToast('Error loading message', 'error');
+            }
+        }
+
+        // Mark message as read
+        async function markAsRead(id) {
+            try {
+                await db.collection('messages').doc(id).update({ read: true });
+                showToast('Message marked as read', 'success');
+                await loadDashboardData();
+            } catch (error) {
+                console.error('Error marking as read:', error);
+                showToast('Error updating message', 'error');
+            }
+        }
+
+        // Escape HTML
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Close modal on background click
+        document.getElementById('projectModal').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) {
+                closeProjectModal();
+            }
+        });
+
+        // Close modal on Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeProjectModal();
+            }
+        });
+
+        console.log('🚀 Admin Panel Ready');
+        console.log('💡 Use your Firebase credentials to login');
+    </script>
+</body>
+</html>
